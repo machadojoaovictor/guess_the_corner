@@ -1,6 +1,17 @@
+/****************************************************
+ *  GuessTheCorner (OpenGL / GLUT)
+ *  Author: João Victor Machado (github.com/machadojoaovictor)
+ *  Description: Simulates the classic DVD logo bouncing
+ *               around the screen edges with color and size changes.
+ ****************************************************/
+
 #include <GL/glut.h>
 #include <stdlib.h>
 #include <time.h>
+
+// =====================================================
+// ===============  GLOBAL VARIABLES  ==================
+// =====================================================
 
 const float g_worldLimit = 100.0f;
 
@@ -9,18 +20,35 @@ float g_worldLimitY = g_worldLimit;
 
 float g_posX = 0.0f;
 float g_posY = 0.0f;
-float g_squareSize = 20.0f;
 
-float g_velocityX = 0.1f;
-float g_velocityY = 0.15f;
+const float g_originalSize = 20.0f;
+float g_currentSize = g_originalSize;
+
+float g_velocityX = 0.08f;
+float g_velocityY = 0.05f;
 
 float g_colorR = 0.0f;
 float g_colorG = 0.0f;
 float g_colorB = 0.8f;
 
-inline float getHalfSize() {
-    return g_squareSize / 2.0f;
+// =====================================================
+// ==================  UTIL FUNCTIONS  =================
+// =====================================================
+inline const float getHalfSize() {
+    return g_currentSize / 2.0f;
 }
+
+inline const float getIncrementAmount() {
+    return g_originalSize * 0.01f;
+}
+
+inline const float getMaxSize() {
+    return g_originalSize * 1.20f;
+}
+
+// =====================================================
+// ===============  PHYSICS & LOGIC  ===================
+// =====================================================
 
 int checkCollision(float* pos, float* velocity, float limit, float halfSize) {
     if (*pos + halfSize > limit) {
@@ -37,9 +65,42 @@ int checkCollision(float* pos, float* velocity, float limit, float halfSize) {
 }
 
 void changeColor() {
-    g_colorR = (float) rand() / (float) RAND_MAX;
-    g_colorG = (float) rand() / (float) RAND_MAX;
-    g_colorB = (float) rand() / (float) RAND_MAX;
+    g_colorR = 0.2f + ((float)rand() / RAND_MAX) * 0.8f;
+    g_colorG = 0.2f + ((float)rand() / RAND_MAX) * 0.8f;
+    g_colorB = 0.2f + ((float)rand() / RAND_MAX) * 0.8f;
+}
+
+// =====================================================
+// ===============  MAIN GAME LOOP  ====================
+// =====================================================
+
+void update() {
+    g_posX += g_velocityX;
+    g_posY += g_velocityY;
+
+
+    float halfSize = getHalfSize();
+    float maxSize = getMaxSize();
+    float incrementAmount = getIncrementAmount();
+
+    int collided = 0;
+
+    collided |= checkCollision(&g_posX, &g_velocityX, g_worldLimitX, halfSize);
+    collided |= checkCollision(&g_posY, &g_velocityY, g_worldLimitY, halfSize);
+
+    if (collided) {
+        changeColor();
+
+        if (g_currentSize < maxSize) {
+            g_currentSize += incrementAmount;
+
+            if (g_currentSize > maxSize) {
+                g_currentSize = maxSize;
+            }
+        }
+    }
+
+    glutPostRedisplay();
 }
 
 void display() {
@@ -48,7 +109,7 @@ void display() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    float halfSize = g_squareSize / 2.0f;
+    float halfSize = getHalfSize();
     float x1 = g_posX - halfSize;
     float x2 = g_posX + halfSize;
     float y1 = g_posY - halfSize;
@@ -69,24 +130,9 @@ void display() {
     glutSwapBuffers();
 }
 
-void update() {
-    g_posX += g_velocityX;
-    g_posY += g_velocityY;
-
-
-    float halfSize = getHalfSize();
-
-    int collided = 0;
-
-    collided |= checkCollision(&g_posX, &g_velocityX, g_worldLimitX, halfSize);
-    collided |= checkCollision(&g_posY, &g_velocityY, g_worldLimitY, halfSize);
-
-    if (collided) {
-        changeColor();
-    }
-
-    glutPostRedisplay();
-}
+// =====================================================
+// ===============  WINDOW HANDLING  ===================
+// =====================================================
 
 void resize(int width, int height) {
     if (height == 0) height = 1;
@@ -125,6 +171,10 @@ void initialize() {
     resize(width, height);
 }
 
+// =====================================================
+// =====================  MAIN  ========================
+// =====================================================
+
 int main(int argc, char** argv) {
     glutInit(&argc, argv);
 
@@ -133,7 +183,7 @@ int main(int argc, char** argv) {
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(1024, 768);
     glutInitWindowPosition(100, 100);
-    glutCreateWindow("DVD Screensaver");
+    glutCreateWindow("GuessTheCorner - OpenGL Screensaver");
 
 
     glutDisplayFunc(display);
@@ -143,6 +193,7 @@ int main(int argc, char** argv) {
     initialize();
 
     glutMainLoop();
+
 
     return 0;
 }

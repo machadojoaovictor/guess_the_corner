@@ -1,6 +1,8 @@
 # depslib dependency file v1.0
-1762525417 source:c:\workspace\language c\project_screen\project screen\main.cpp
+1762532906 source:c:\workspace\language c\project_screen\project screen\main.cpp
 	<GL/glut.h>
+	<stdlib.h>
+	<time.h>
 
 1426360528 c:\glut\include\gl\glut.h
 	"freeglut_std.h"
