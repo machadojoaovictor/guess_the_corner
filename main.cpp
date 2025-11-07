@@ -1,4 +1,6 @@
 #include <GL/glut.h>
+#include <stdlib.h>
+#include <time.h>
 
 const float g_worldLimit = 100.0f;
 
@@ -12,18 +14,32 @@ float g_squareSize = 20.0f;
 float g_velocityX = 0.1f;
 float g_velocityY = 0.15f;
 
+float g_colorR = 0.0f;
+float g_colorG = 0.0f;
+float g_colorB = 0.8f;
+
 inline float getHalfSize() {
     return g_squareSize / 2.0f;
 }
 
-void checkCollision(float* pos, float* velocity, float limit, float halfSize) {
+int checkCollision(float* pos, float* velocity, float limit, float halfSize) {
     if (*pos + halfSize > limit) {
         *velocity = -*velocity;
         *pos = limit - halfSize;
+        return 1;
     } else if (*pos - halfSize < -limit) {
         *velocity = -*velocity;
         *pos = -limit + halfSize;
+        return 1;
     }
+
+    return 0;
+}
+
+void changeColor() {
+    g_colorR = (float) rand() / (float) RAND_MAX;
+    g_colorG = (float) rand() / (float) RAND_MAX;
+    g_colorB = (float) rand() / (float) RAND_MAX;
 }
 
 void display() {
@@ -39,7 +55,7 @@ void display() {
     float y2 = g_posY + halfSize;
 
 
-    glColor3f(0.0f, 0.0f, 0.8f);
+    glColor3f(g_colorR, g_colorG, g_colorB);
 
 
     glBegin(GL_QUADS);
@@ -60,8 +76,14 @@ void update() {
 
     float halfSize = getHalfSize();
 
-    checkCollision(&g_posX, &g_velocityX, g_worldLimitX, halfSize);
-    checkCollision(&g_posY, &g_velocityY, g_worldLimitY, halfSize);
+    int collided = 0;
+
+    collided |= checkCollision(&g_posX, &g_velocityX, g_worldLimitX, halfSize);
+    collided |= checkCollision(&g_posY, &g_velocityY, g_worldLimitY, halfSize);
+
+    if (collided) {
+        changeColor();
+    }
 
     glutPostRedisplay();
 }
@@ -106,6 +128,7 @@ void initialize() {
 int main(int argc, char** argv) {
     glutInit(&argc, argv);
 
+    srand(time(NULL));
 
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(1024, 768);
