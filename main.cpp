@@ -6,8 +6,8 @@ float g_posX = 0.0f;
 float g_posY = 0.0f;
 float g_squareSize = 20.0f;
 
-float g_velocityX = 0.2f;
-float g_velocityY = 0.15f;
+float g_velocityX = 0.02f;
+float g_velocityY = 0.015f;
 
 void display()
 {
@@ -35,6 +35,15 @@ void display()
 
 
     glutSwapBuffers();
+}
+
+void update()
+{
+    g_posX += g_velocityX;
+    g_posY += g_velocityY;
+
+
+    glutPostRedisplay();
 }
 
 void initialize()
@@ -83,6 +92,7 @@ int main(int argc, char** argv)
 
     glutDisplayFunc(display);
     glutReshapeFunc(resize);
+    glutIdleFunc(update);
 
     initialize();
 
