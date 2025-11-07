@@ -6,12 +6,33 @@ float g_posX = 0.0f;
 float g_posY = 0.0f;
 float g_squareSize = 20.0f;
 
-void draw()
+float g_velocityX = 0.2f;
+float g_velocityY = 0.15f;
+
+void display()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glColor3f(0.9f, 0.5f, 0.6f);
-    glRectf(-10.0f, -10.0f, 10.0f, 10.0f);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+
+    float halfSize = g_squareSize / 2.0f;
+    float x1 = g_posX - halfSize;
+    float x2 = g_posX + halfSize;
+    float y1 = g_posY - halfSize;
+    float y2 = g_posY + halfSize;
+
+
+    glColor3f(0.0f, 0.0f, 0.8f);
+
+
+    glBegin(GL_QUADS);
+        glVertex2f(x1, y2); // top-left
+        glVertex2f(x2, y2); // top-right
+        glVertex2f(x2, y1); // bottom-right
+        glVertex2f(x1, y1); // bottom-left
+    glEnd();
+
 
     glutSwapBuffers();
 }
@@ -60,7 +81,7 @@ int main(int argc, char** argv)
     glutCreateWindow("DVD Screensaver");
 
 
-    glutDisplayFunc(draw);
+    glutDisplayFunc(display);
     glutReshapeFunc(resize);
 
     initialize();
